@@ -70,11 +70,11 @@ module M_OT (O : Interface.S) (T : Interface.S) = struct
   end
 end
 
-module type Core_name = sig
+module type Subsystem_name = sig
   val core : string
 end
 
-module type Core = sig
+module type Subsystem = sig
   type t =
     { inputs : Signal.t list
     ; outputs : Signal.t list
@@ -86,15 +86,16 @@ module type Core = sig
 end
 
 module type Board = sig
-  module type Core_name = Core_name
-  module type Core = Core
+  module type Subsystem_name = Subsystem_name
+  module type Subsystem = Subsystem
 
-  module Core : Core
+  module Subsystem : Subsystem
 
   type t [@@deriving sexp_of]
 
-  val create : unit -> t
-  val cores : t -> (string, Core.t) Hashtbl.t
+  val create : ?flatten_design:bool -> unit -> t
+  val scope : t -> Scope.t
+  val subsystems : t -> (string, Subsystem.t) Hashtbl.t
   val pins : t -> Pin.t list
 
   module M_IOT = M_IOT
@@ -106,21 +107,26 @@ module type Board = sig
   module M_OT = M_OT
 
   module Make_IOT
-      (_ : Core_name)
+      (Subsystem_name : Subsystem_name)
       (I : Interface.S)
       (O : Interface.S)
       (T : Interface.S) : M_IOT(I)(O)(T).S with type board := t
 
-  module Make_I (_ : Core_name) (I : Interface.S) : M_I(I).S with type board := t
-  module Make_O (_ : Core_name) (O : Interface.S) : M_O(O).S with type board := t
-  module Make_T (_ : Core_name) (T : Interface.S) : M_T(T).S with type board := t
+  module Make_I (Subsystem_name : Subsystem_name) (I : Interface.S) :
+    M_I(I).S with type board := t
 
-  module Make_IO (_ : Core_name) (I : Interface.S) (O : Interface.S) :
+  module Make_O (Subsystem_name : Subsystem_name) (O : Interface.S) :
+    M_O(O).S with type board := t
+
+  module Make_T (Subsystem_name : Subsystem_name) (T : Interface.S) :
+    M_T(T).S with type board := t
+
+  module Make_IO (Subsystem_name : Subsystem_name) (I : Interface.S) (O : Interface.S) :
     M_IO(I)(O).S with type board := t
 
-  module Make_IT (_ : Core_name) (I : Interface.S) (T : Interface.S) :
+  module Make_IT (Subsystem_name : Subsystem_name) (I : Interface.S) (T : Interface.S) :
     M_IT(I)(T).S with type board := t
 
-  module Make_OT (_ : Core_name) (O : Interface.S) (T : Interface.S) :
+  module Make_OT (Subsystem_name : Subsystem_name) (O : Interface.S) (T : Interface.S) :
     M_OT(O)(T).S with type board := t
 end

@@ -1,0 +1,6 @@
+(library
+ (name alu_test)
+ (libraries core hardcaml hardcaml_waveterm myalu)
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane ppx_hardcaml)))

@@ -10,3 +10,7 @@ module Uart_types = Uart_types
 module Utils = Utils
 module Vga = Vga
 module Xml_pins = Xml_pins
+
+module Xilinx_top = struct
+  module For_testing = Xilinx_top.For_testing
+end

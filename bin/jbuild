@@ -1,0 +1,13 @@
+(executables (
+  (names (board_pin_info generator simulate))
+  (libraries (
+    core
+    command
+    command_unix
+    hardcaml
+    hardcaml_hobby_boards
+    hardcaml_hobby_boards_test
+    hardcaml_hobby_boards_demos_nexys_a7_100t
+    hardcaml_hobby_boards_demos_arty_a7_35t
+    hardcaml_waveterm_interactive
+    rope))))
