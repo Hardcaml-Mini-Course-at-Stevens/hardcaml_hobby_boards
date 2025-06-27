@@ -1,5 +1,0 @@
-(library
- (name june17_test)
- (libraries core hardcaml hardcaml_waveterm june17)
- (inline_tests)
- (preprocess (pps ppx_jane ppx_hardcaml)))

@@ -260,9 +260,8 @@ let custom_constraints =
     ]
 ;;
 
-let generate_top ?dir board =
+let generate_top board =
   Xilinx_top.generate
-    ?dir
     ~name:"nexys_a7_100t"
     ~part:(Xml_pins.Part_and_pins.part part_info)
     ~pins:(Xml_pins.Part_and_pins.pins part_info)

@@ -4,28 +4,26 @@ let nexys_a7_100t f =
   Command.basic
     ~summary:""
     [%map_open.Command
-      let dir = flag "-dir" (optional string) ~doc:"[DIR] output files to DIR" in
+      let () = return () in
       fun () ->
         let board = f () in
-        Hardcaml_hobby_boards.Nexys_a7_100t.generate_top ?dir board]
+        Hardcaml_hobby_boards.Nexys_a7_100t.generate_top board]
 ;;
 
 let arty_a7_35t f =
   Command.basic
     ~summary:""
     [%map_open.Command
-      let dir = flag "-dir" (optional string) ~doc:"[DIR] output files to DIR" in
+      let () = return () in
       fun () ->
         let board = f () in
-        Hardcaml_hobby_boards.Arty_a7.generate_top ?dir ~part:`a35 board]
+        Hardcaml_hobby_boards.Arty_a7.generate_top ~part:`a35 board]
 ;;
 
 let nexys_a7_100t =
   Command.group
     ~summary:""
-    [ "adder", nexys_a7_100t Hardcaml_hobby_boards_demos_nexys_a7_100t.Adder.create;
-    "alu", nexys_a7_100t Hardcaml_hobby_boards_demos_nexys_a7_100t.Alu.create;
-    "blinker", nexys_a7_100t Hardcaml_hobby_boards_demos_nexys_a7_100t.Blinker.create
+    [ "blinker", nexys_a7_100t Hardcaml_hobby_boards_demos_nexys_a7_100t.Blinker.create
     ; "cylon", nexys_a7_100t Hardcaml_hobby_boards_demos_nexys_a7_100t.Cylon.create
     ; ( "seven-segment-display"
       , nexys_a7_100t

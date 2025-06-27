@@ -1,23 +1,14 @@
 open! Base
 open! Hardcaml
 open Board
-open Subsystem
+open Core
 
-let hardcaml_circuit name (board : (_, Board.Subsystem.t) Hashtbl.t) =
+let hardcaml_circuit name (board : (_, Board.Core.t) Hashtbl.t) =
   let cores = Hashtbl.to_alist board in
   Circuit.create_exn
     ~name
     (List.map cores ~f:(fun (_, core) -> core.outputs @ core.output_tristates)
      |> List.concat)
-;;
-
-let rtl_of_hardcaml_circuit board hardcaml_circuit =
-  Rtl.create
-    ~database:(Board.scope board |> Scope.circuit_database)
-    (* Vhdl *)
-    Verilog
-    [ hardcaml_circuit ]
-  |> Rtl.full_hierarchy
 ;;
 
 let port_name signal =
@@ -121,42 +112,27 @@ puts "WNS=$WNS"
 |}]
 ;;
 
-let generate ?custom_constraints ?dir ~name ~part ~pins board =
-  let subsystems = Board.subsystems board in
-  Hashtbl.iteri subsystems ~f:(fun ~key:subsystem ~data ->
-    if not data.complete then raise_s [%message "Not completed" (subsystem : string)]);
-  let hardcaml_circuit = hardcaml_circuit name subsystems in
-  let structural_circuit = structural_circuit name subsystems hardcaml_circuit in
-  let xdc_pin_constraints = generate_xdc_pins pins subsystems in
+let generate ?custom_constraints ~name ~part ~pins board =
+  let cores = Board.cores board in
+  Hashtbl.iteri cores ~f:(fun ~key:core ~data ->
+    if not data.complete then raise_s [%message "Not completed" (core : string)]);
+  let hardcaml_circuit = hardcaml_circuit name cores in
+  let structural_circuit = structural_circuit name cores hardcaml_circuit in
+  let xdc_pin_constraints = generate_xdc_pins pins cores in
   let xdc_constraints =
     match custom_constraints with
     | None -> xdc_pin_constraints
     | Some custom -> Rope.concat [ xdc_pin_constraints; custom ]
   in
   let tcl = generate_tcl ~name ~part in
-  let in_dir name =
-    match dir with
-    | Some dir -> Filename_base.concat dir name
-    | None -> name
-  in
   Stdio.Out_channel.write_all
-    (in_dir (name ^ ".v"))
+    (name ^ ".v")
     ~data:
       (Rope.concat
-         [ rtl_of_hardcaml_circuit board hardcaml_circuit
+         [ Rtl.create Verilog [ hardcaml_circuit ] |> Rtl.full_hierarchy
          ; Structural.to_verilog structural_circuit
          ]
        |> Rope.to_string);
-  Stdio.Out_channel.write_all
-    (in_dir (name ^ ".xdc"))
-    ~data:(Rope.to_string xdc_constraints);
-  Stdio.Out_channel.write_all (in_dir (name ^ ".tcl")) ~data:(Rope.to_string tcl)
+  Stdio.Out_channel.write_all (name ^ ".xdc") ~data:(Rope.to_string xdc_constraints);
+  Stdio.Out_channel.write_all (name ^ ".tcl") ~data:(Rope.to_string tcl)
 ;;
-
-module For_testing = struct
-  let rtl_of_hardcaml_circuit board =
-    let subsystems = Board.subsystems board in
-    let hardcaml_circuit = hardcaml_circuit "for_testing" subsystems in
-    rtl_of_hardcaml_circuit board hardcaml_circuit |> Rope.to_string
-  ;;
-end

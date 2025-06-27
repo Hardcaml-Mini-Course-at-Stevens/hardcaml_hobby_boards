@@ -37,5 +37,5 @@ module type Arty_a7 = sig
     include M_O(O).S with type board := Board.t
   end
 
-  val generate_top : ?dir:string -> part:[ `a35 | `a100 ] -> Board.t -> unit
+  val generate_top : part:[ `a35 | `a100 ] -> Board.t -> unit
 end

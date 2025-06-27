@@ -1,5 +1,3 @@
-module Adder = Adder
-module Alu = Alu
 module Blinker = Blinker
 module Cylon = Cylon
 module Seven_segment_display = Seven_segment_display

@@ -166,5 +166,5 @@ module type Nexys_a7_100t = sig
     include M_IO(I)(O).S with type board := Board.t
   end
 
-  val generate_top : ?dir:string -> Board.t -> unit
+  val generate_top : Board.t -> unit
 end
