@@ -93,7 +93,7 @@ let custom_constraints =
     ]
 ;;
 
-let generate_top ~(part : [ `a35 | `a100 ]) board =
+let generate_top ?dir ~(part : [ `a35 | `a100 ]) board =
   let board_info, name =
     match part with
     | `a35 -> Board_info.arty_a7_35_dot_sexp, "arty_a7_35t"
@@ -101,6 +101,7 @@ let generate_top ~(part : [ `a35 | `a100 ]) board =
   in
   let part_info = part_info board_info in
   Xilinx_top.generate
+    ?dir
     ~name
     ~part:(Xml_pins.Part_and_pins.part part_info)
     ~pins:(Xml_pins.Part_and_pins.pins part_info)
