@@ -31,7 +31,7 @@ module Tx = struct
       ; data_in : 'a [@bits 9]
       ; data_in_valid : 'a
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
@@ -39,7 +39,7 @@ module Tx = struct
       { txd : 'a
       ; data_in_ready : 'a
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module State = struct
@@ -139,7 +139,7 @@ module Rx = struct
       ; config : 'a Config.t
       ; rxd : 'a
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
@@ -148,7 +148,7 @@ module Rx = struct
       ; data_out_valid : 'a
       ; error : 'a
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module State = struct

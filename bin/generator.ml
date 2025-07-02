@@ -4,20 +4,20 @@ let nexys_a7_100t f =
   Command.basic
     ~summary:""
     [%map_open.Command
-      let () = return () in
+      let dir = flag "-dir" (optional string) ~doc:"[DIR] output files to DIR" in
       fun () ->
         let board = f () in
-        Hardcaml_hobby_boards.Nexys_a7_100t.generate_top board]
+        Hardcaml_hobby_boards.Nexys_a7_100t.generate_top ?dir board]
 ;;
 
 let arty_a7_35t f =
   Command.basic
     ~summary:""
     [%map_open.Command
-      let () = return () in
+      let dir = flag "-dir" (optional string) ~doc:"[DIR] output files to DIR" in
       fun () ->
         let board = f () in
-        Hardcaml_hobby_boards.Arty_a7.generate_top ~part:`a35 board]
+        Hardcaml_hobby_boards.Arty_a7.generate_top ?dir ~part:`a35 board]
 ;;
 
 let nexys_a7_100t =

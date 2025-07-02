@@ -37,5 +37,26 @@ module type Arty_a7 = sig
     include M_O(O).S with type board := Board.t
   end
 
-  val generate_top : part:[ `a35 | `a100 ] -> Board.t -> unit
+  module Ethernet : sig
+    module I : sig
+      type 'a t =
+        { crsdv : 'a
+        ; rxerr : 'a
+        ; rxd : 'a
+        }
+      [@@deriving hardcaml]
+    end
+
+    module O : sig
+      type 'a t =
+        { txen : 'a
+        ; txd : 'a
+        }
+      [@@deriving hardcaml]
+    end
+
+    include M_IO(I)(O).S with type board := Board.t
+  end
+
+  val generate_top : ?dir:string -> part:[ `a35 | `a100 ] -> Board.t -> unit
 end

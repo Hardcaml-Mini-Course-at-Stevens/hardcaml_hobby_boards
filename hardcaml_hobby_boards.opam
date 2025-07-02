@@ -11,7 +11,17 @@ build: [
 ]
 depends: [
   "ocaml" {>= "5.1.0"}
-  "dune" {>= "3.17.0"}
+  "base"
+  "core"
+  "hardcaml"
+  "jane_rope"
+  "parsexp"
+  "ppx_hardcaml"
+  "ppx_jane"
+  "ppx_rope"
+  "simple_xml"
+  "stdio"
+  "dune"         {>= "3.17.0"}
 ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "Support code for FPGA hobby boards."

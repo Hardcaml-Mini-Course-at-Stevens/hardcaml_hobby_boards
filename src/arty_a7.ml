@@ -54,11 +54,12 @@ module Rgb_leds = struct
       ; green : 'a [@rtlname "g"]
       ; blue : 'a [@rtlname "b"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
-    type 'a t = { leds : 'a Rgb.t array [@length 4] } [@@deriving hardcaml]
+    type 'a t = { leds : 'a Rgb.t array [@length 4] }
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   (* The port names require a flat array, so we convert to something nicer at the
@@ -78,6 +79,33 @@ module Rgb_leds = struct
   let complete board o = complete board (Signal.concat_lsb (O.to_list o))
 end
 
+module Ethernet = struct
+  module I = struct
+    type 'a t =
+      { crsdv : 'a [@rtlname "eth_crs"]
+      ; rxerr : 'a [@rtlname "eth_rx_er"]
+      ; rxd : 'a [@bits 4] [@rtlname "eth_rxd"]
+      }
+    [@@deriving hardcaml ~rtlmangle:false]
+  end
+
+  module O = struct
+    type 'a t =
+      { txen : 'a [@rtlname "eth_tx_en"]
+      ; txd : 'a [@bits 4] [@rtlname "eth_txd"]
+      }
+    [@@deriving hardcaml ~rtlmangle:false]
+  end
+
+  include
+    Make_IO
+      (struct
+        let core = "ethernet"
+      end)
+      (I)
+      (O)
+end
+
 (* Ethernet, I2C, shield, qspi, spi, usbuart, pmod *)
 
 let part_info p = Xml_pins.Part_and_pins.t_of_sexp (Parsexp.Single.parse_string_exn p)
@@ -93,7 +121,7 @@ let custom_constraints =
     ]
 ;;
 
-let generate_top ~(part : [ `a35 | `a100 ]) board =
+let generate_top ?dir ~(part : [ `a35 | `a100 ]) board =
   let board_info, name =
     match part with
     | `a35 -> Board_info.arty_a7_35_dot_sexp, "arty_a7_35t"
@@ -101,6 +129,7 @@ let generate_top ~(part : [ `a35 | `a100 ]) board =
   in
   let part_info = part_info board_info in
   Xilinx_top.generate
+    ?dir
     ~name
     ~part:(Xml_pins.Part_and_pins.part part_info)
     ~pins:(Xml_pins.Part_and_pins.pins part_info)

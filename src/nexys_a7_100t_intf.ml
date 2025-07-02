@@ -166,5 +166,26 @@ module type Nexys_a7_100t = sig
     include M_IO(I)(O).S with type board := Board.t
   end
 
-  val generate_top : Board.t -> unit
+  module Ethernet : sig
+    module I : sig
+      type 'a t =
+        { crsdv : 'a
+        ; rxerr : 'a
+        ; rxd : 'a
+        }
+      [@@deriving hardcaml]
+    end
+
+    module O : sig
+      type 'a t =
+        { txen : 'a
+        ; txd : 'a
+        }
+      [@@deriving hardcaml]
+    end
+
+    include M_IO(I)(O).S with type board := Board.t
+  end
+
+  val generate_top : ?dir:string -> Board.t -> unit
 end

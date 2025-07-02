@@ -12,7 +12,7 @@ module Buttons = struct
       ; down : 'a [@rtlname "d"]
       ; center : 'a [@rtlname "c"]
       }
-    [@@deriving hardcaml ~rtlprefix:"button_"]
+    [@@deriving hardcaml ~rtlmangle:false ~rtlprefix:"button_"]
   end
 
   include
@@ -61,7 +61,7 @@ struct
       ; green : 'a [@rtlname "g"]
       ; blue : 'a [@rtlname "b"]
       }
-    [@@deriving hardcaml ~rtlprefix:[%string "rgb_led_%{C.index#Int}_"]]
+    [@@deriving hardcaml ~rtlmangle:false ~rtlprefix:[%string "rgb_led_%{C.index#Int}_"]]
   end
 
   include
@@ -86,7 +86,7 @@ module Seven_segment_display = struct
       { set_n : 'a [@rtlname "seven_seg_set"]
       ; select_n : 'a [@bits 8] [@rtlname "seven_seg_sel_n"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -106,7 +106,7 @@ module Vga = struct
       ; horizontal_sync : 'a [@rtlname "vga_hs"]
       ; vertical_sync : 'a [@rtlname "vga_vs"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -123,7 +123,7 @@ module Uart = struct
       { rxd : 'a [@rtlname "usb_uart_rxd"]
       ; cts : 'a [@rtlname "usb_uart_rts"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
@@ -131,7 +131,7 @@ module Uart = struct
       { txd : 'a [@rtlname "usb_uart_txd"]
       ; rts : 'a [@rtlname "usb_uart_cts"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -145,7 +145,7 @@ end
 
 module Microphone = struct
   module I = struct
-    type 'a t = { data : 'a [@rtlname "mic_data"] } [@@deriving hardcaml]
+    type 'a t = { data : 'a [@rtlname "mic_data"] } [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
@@ -153,7 +153,7 @@ module Microphone = struct
       { clock : 'a [@rtlname "mic_clk"]
       ; edge_select : 'a [@rtlname "mic_lrsel"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -167,11 +167,11 @@ end
 
 module Audio_amplifier = struct
   module T = struct
-    type 'a t = { pwm : 'a [@rtlname "aud_pwm"] } [@@deriving hardcaml]
+    type 'a t = { pwm : 'a [@rtlname "aud_pwm"] } [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
-    type 'a t = { sd : 'a [@rtlname "aud_sd"] } [@@deriving hardcaml]
+    type 'a t = { sd : 'a [@rtlname "aud_sd"] } [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -189,7 +189,7 @@ module Ps2 = struct
       { clock : 'a [@rtlname "ps2_clk"]
       ; data : 'a [@rtlname "ps2_data"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -206,7 +206,7 @@ module Temperature_sensor = struct
       { scl : 'a [@rtlname "temp_scl"]
       ; sda : 'a [@rtlname "temp_sda"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
@@ -223,7 +223,7 @@ module Accelerometer = struct
       { miso : 'a [@rtlname "acl_miso"]
       ; int_ : 'a [@bits 2] [@rtlname "acl_int"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   module O = struct
@@ -232,13 +232,40 @@ module Accelerometer = struct
       ; mosi : 'a [@rtlname "acl_mosi"]
       ; cs_n : 'a [@rtlname "acl_csn"]
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   include
     Make_IO
       (struct
         let core = "accelerometer"
+      end)
+      (I)
+      (O)
+end
+
+module Ethernet = struct
+  module I = struct
+    type 'a t =
+      { crsdv : 'a [@rtlname "eth_crsdv"]
+      ; rxerr : 'a [@rtlname "eth_rxerr"]
+      ; rxd : 'a [@bits 2] [@rtlname "eth_rxd"]
+      }
+    [@@deriving hardcaml ~rtlmangle:false]
+  end
+
+  module O = struct
+    type 'a t =
+      { txen : 'a [@rtlname "eth_txen"]
+      ; txd : 'a [@bits 2] [@rtlname "eth_txd"]
+      }
+    [@@deriving hardcaml ~rtlmangle:false]
+  end
+
+  include
+    Make_IO
+      (struct
+        let core = "ethernet"
       end)
       (I)
       (O)
@@ -260,8 +287,9 @@ let custom_constraints =
     ]
 ;;
 
-let generate_top board =
+let generate_top ?dir board =
   Xilinx_top.generate
+    ?dir
     ~name:"nexys_a7_100t"
     ~part:(Xml_pins.Part_and_pins.part part_info)
     ~pins:(Xml_pins.Part_and_pins.pins part_info)

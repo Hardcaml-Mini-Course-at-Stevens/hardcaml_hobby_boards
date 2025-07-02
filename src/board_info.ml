@@ -4,7 +4,7 @@ let nexys_a7_100t_dot_sexp =
   \   ; clocking\n\
   \   ((name clock_100)          (loc E3)  (iostandard LVCMOS33))\n\
   \   ((name reset_n)            (loc C12) (iostandard LVCMOS33))\n\
-  \   ; aceelerometer\n\
+  \   ; accelerometer\n\
   \   ((name acl_miso)           (loc E15) (iostandard LVCMOS33))\n\
   \   ((name acl_mosi)           (loc F14) (iostandard LVCMOS33))\n\
   \   ((name acl_sclk)           (loc F15) (iostandard LVCMOS33))\n\
@@ -162,7 +162,20 @@ let nexys_a7_100t_dot_sexp =
   \   ((name vga_b[2])           (loc D7)  (iostandard LVCMOS33))\n\
   \   ((name vga_b[3])           (loc D8)  (iostandard LVCMOS33))\n\
   \   ((name vga_hs)             (loc B11) (iostandard LVCMOS33))\n\
-  \   ((name vga_vs)             (loc B12) (iostandard LVCMOS33)))))\n"
+  \   ((name vga_vs)             (loc B12) (iostandard LVCMOS33))\n\
+  \   ; ethernet\n\
+  \   ((name eth_mdc)            (loc C9)  (iostandard LVCMOS33))\n\
+  \   ((name eth_mdio)           (loc A9)  (iostandard LVCMOS33))\n\
+  \   ((name eth_rstn)           (loc B3)  (iostandard LVCMOS33))\n\
+  \   ((name eth_crsdv)          (loc D9)  (iostandard LVCMOS33))\n\
+  \   ((name eth_rxerr)          (loc C10) (iostandard LVCMOS33))\n\
+  \   ((name eth_rxd[0])         (loc C11) (iostandard LVCMOS33))\n\
+  \   ((name eth_rxd[1])         (loc D10) (iostandard LVCMOS33))\n\
+  \   ((name eth_txen)           (loc B9)  (iostandard LVCMOS33))\n\
+  \   ((name eth_txd[0])         (loc A10) (iostandard LVCMOS33))\n\
+  \   ((name eth_txd[1])         (loc A8)  (iostandard LVCMOS33))\n\
+  \   ((name eth_refclk)         (loc D5)  (iostandard LVCMOS33))\n\
+  \   ((name eth_intn)           (loc B8)  (iostandard LVCMOS33)))))\n"
 ;;
 
 let arty_a7_35_dot_sexp =

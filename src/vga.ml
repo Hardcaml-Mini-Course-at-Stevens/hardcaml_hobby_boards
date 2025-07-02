@@ -120,7 +120,7 @@ module Scan = struct
       ; last : 'a
       ; counter : 'a
       }
-    [@@deriving hardcaml]
+    [@@deriving hardcaml ~rtlmangle:false]
   end
 
   let create scope spec ~enable (vga_spec : Timing.t) =

@@ -1,14 +1,22 @@
 open! Base
 open! Hardcaml
 open Board
-open Core
+open Subsystem
 
-let hardcaml_circuit name (board : (_, Board.Core.t) Hashtbl.t) =
+let hardcaml_circuit name (board : (_, Board.Subsystem.t) Hashtbl.t) =
   let cores = Hashtbl.to_alist board in
   Circuit.create_exn
     ~name
     (List.map cores ~f:(fun (_, core) -> core.outputs @ core.output_tristates)
      |> List.concat)
+;;
+
+let rtl_of_hardcaml_circuit board hardcaml_circuit =
+  Rtl.create
+    ~database:(Board.scope board |> Scope.circuit_database)
+    Verilog
+    [ hardcaml_circuit ]
+  |> Rtl.full_hierarchy
 ;;
 
 let port_name signal =
@@ -95,44 +103,74 @@ let generate_xdc_pins (pins : Pin.t list) board =
 let generate_tcl ~name ~part =
   [%rope
     {|# vivado -mode batch -source %{name#String}.tcl
-read_verilog %{name#String}.v
-read_xdc %{name#String}.xdc
-synth_design -top %{name#String}_top -part %{part#String}
-opt_design
-#write_checkpoint -force %{name#String}.synth.dcp
-place_design
-#write_checkpoint -force %{name#String}.place.dcp
-route_design
-#write_checkpoint -force %{name#String}.route.dcp
-#report_utilization -hierarchical -file %{name#String}.utilization.rpt
-report_timing_summary -file %{name#String}.timing.rpt
-write_bitstream -force %{name#String}.bit
-set WNS [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -setup]]
-puts "WNS=$WNS"
+
+set PROJECT_NAME "%{name#String}"
+set FPGA_PART "%{part#String}"
+set DEBUG false
+
+%{Tooling_scripts.compile_dot_template_dot_tcl#String}
 |}]
 ;;
 
-let generate ?custom_constraints ~name ~part ~pins board =
-  let cores = Board.cores board in
-  Hashtbl.iteri cores ~f:(fun ~key:core ~data ->
-    if not data.complete then raise_s [%message "Not completed" (core : string)]);
-  let hardcaml_circuit = hardcaml_circuit name cores in
-  let structural_circuit = structural_circuit name cores hardcaml_circuit in
-  let xdc_pin_constraints = generate_xdc_pins pins cores in
+let generate_run_vivado_remotely_script ~name =
+  [%rope
+    {|#!/bin/sh
+
+PROJECT_NAME="%{name#String}"
+
+%{Tooling_scripts.run_vivado_remotely_dot_template_dot_sh#String}
+|}]
+;;
+
+let generate_flash_tcl ~name =
+  [%rope
+    {|# vivado -mode batch -source flash.tcl
+
+set PROJECT_NAME "%{name#String}"
+
+%{Tooling_scripts.flash_dot_template_dot_tcl#String}
+    |}]
+;;
+
+let generate ?custom_constraints ?dir ~name ~part ~pins board =
+  let subsystems = Board.subsystems board in
+  Hashtbl.iteri subsystems ~f:(fun ~key:subsystem ~data ->
+    if not data.complete then raise_s [%message "Not completed" (subsystem : string)]);
+  let hardcaml_circuit = hardcaml_circuit name subsystems in
+  let structural_circuit = structural_circuit name subsystems hardcaml_circuit in
+  let xdc_pin_constraints = generate_xdc_pins pins subsystems in
   let xdc_constraints =
     match custom_constraints with
     | None -> xdc_pin_constraints
     | Some custom -> Rope.concat [ xdc_pin_constraints; custom ]
   in
   let tcl = generate_tcl ~name ~part in
-  Stdio.Out_channel.write_all
-    (name ^ ".v")
-    ~data:
-      (Rope.concat
-         [ Rtl.create Verilog [ hardcaml_circuit ] |> Rtl.full_hierarchy
-         ; Structural.to_verilog structural_circuit
-         ]
-       |> Rope.to_string);
-  Stdio.Out_channel.write_all (name ^ ".xdc") ~data:(Rope.to_string xdc_constraints);
-  Stdio.Out_channel.write_all (name ^ ".tcl") ~data:(Rope.to_string tcl)
+  let flash_tcl = generate_flash_tcl ~name in
+  let run_vivado_remotely_script = generate_run_vivado_remotely_script ~name in
+  let in_dir name =
+    match dir with
+    | Some dir -> Filename_base.concat dir name
+    | None -> name
+  in
+  let write_rope_to_file ~filename data =
+    Stdio.Out_channel.write_all (in_dir filename) ~data:(data |> Rope.to_string)
+  in
+  write_rope_to_file
+    ~filename:(name ^ ".v")
+    (Rope.concat
+       [ rtl_of_hardcaml_circuit board hardcaml_circuit
+       ; Structural.to_verilog structural_circuit
+       ]);
+  write_rope_to_file ~filename:(name ^ ".xdc") xdc_constraints;
+  write_rope_to_file ~filename:(name ^ ".tcl") tcl;
+  write_rope_to_file ~filename:"flash.tcl" flash_tcl;
+  write_rope_to_file ~filename:"run_vivado_remotely.sh" run_vivado_remotely_script
 ;;
+
+module For_testing = struct
+  let rtl_of_hardcaml_circuit board =
+    let subsystems = Board.subsystems board in
+    let hardcaml_circuit = hardcaml_circuit "for_testing" subsystems in
+    rtl_of_hardcaml_circuit board hardcaml_circuit |> Rope.to_string
+  ;;
+end

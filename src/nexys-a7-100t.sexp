@@ -3,7 +3,7 @@
    ; clocking
    ((name clock_100)          (loc E3)  (iostandard LVCMOS33))
    ((name reset_n)            (loc C12) (iostandard LVCMOS33))
-   ; aceelerometer
+   ; accelerometer
    ((name acl_miso)           (loc E15) (iostandard LVCMOS33))
    ((name acl_mosi)           (loc F14) (iostandard LVCMOS33))
    ((name acl_sclk)           (loc F15) (iostandard LVCMOS33))
@@ -161,4 +161,17 @@
    ((name vga_b[2])           (loc D7)  (iostandard LVCMOS33))
    ((name vga_b[3])           (loc D8)  (iostandard LVCMOS33))
    ((name vga_hs)             (loc B11) (iostandard LVCMOS33))
-   ((name vga_vs)             (loc B12) (iostandard LVCMOS33)))))
+   ((name vga_vs)             (loc B12) (iostandard LVCMOS33))
+   ; ethernet
+   ((name eth_mdc)            (loc C9)  (iostandard LVCMOS33))
+   ((name eth_mdio)           (loc A9)  (iostandard LVCMOS33))
+   ((name eth_rstn)           (loc B3)  (iostandard LVCMOS33))
+   ((name eth_crsdv)          (loc D9)  (iostandard LVCMOS33))
+   ((name eth_rxerr)          (loc C10) (iostandard LVCMOS33))
+   ((name eth_rxd[0])         (loc C11) (iostandard LVCMOS33))
+   ((name eth_rxd[1])         (loc D10) (iostandard LVCMOS33))
+   ((name eth_txen)           (loc B9)  (iostandard LVCMOS33))
+   ((name eth_txd[0])         (loc A10) (iostandard LVCMOS33))
+   ((name eth_txd[1])         (loc A8)  (iostandard LVCMOS33))
+   ((name eth_refclk)         (loc D5)  (iostandard LVCMOS33))
+   ((name eth_intn)           (loc B8)  (iostandard LVCMOS33)))))

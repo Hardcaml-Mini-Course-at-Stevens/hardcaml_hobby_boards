@@ -9,7 +9,7 @@ module I = struct
     { clock_100 : 'a
     ; reset_n : 'a
     }
-  [@@deriving hardcaml]
+  [@@deriving hardcaml ~rtlmangle:false]
 end
 
 include
