@@ -83,7 +83,7 @@ module Rgb_led1 = Rgb_led (struct
 module Seven_segment_display = struct
   module O = struct
     type 'a t =
-      { set_n : 'a [@rtlname "seven_seg_set"]
+      { set_n : 'a [@bits 8][@rtlname "seven_seg_set"]
       ; select_n : 'a [@bits 8] [@rtlname "seven_seg_sel_n"]
       }
     [@@deriving hardcaml ~rtlmangle:false]
